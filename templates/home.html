@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1">
+
+<title>
+
+Game Completion Time Predictor
+
+</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',sans-serif;
+}
+
+body{
+
+background:
+radial-gradient(circle at top left,
+rgba(0,255,255,.15),
+transparent 30%),
+
+radial-gradient(circle at bottom right,
+rgba(138,43,226,.18),
+transparent 35%),
+
+linear-gradient(
+135deg,
+#050816,
+#0b1026 45%,
+#101a3a);
+
+padding:30px;
+
+color:white;
+
+}
+
+.login{
+
+max-width:1200px;
+
+margin:auto;
+
+padding:30px;
+
+border-radius:20px;
+
+background:
+rgba(255,255,255,.08);
+
+backdrop-filter:blur(20px);
+
+box-shadow:
+0 20px 60px rgba(0,0,0,.4);
+
+}
+
+.title{
+
+font-size:2rem;
+
+font-weight:800;
+
+text-align:center;
+
+margin-bottom:10px;
+
+}
+
+.subtitle{
+
+text-align:center;
+
+opacity:.7;
+
+margin-bottom:30px;
+
+}
+
+form{
+
+display:grid;
+
+grid-template-columns:
+repeat(2,1fr);
+
+gap:18px;
+
+}
+
+.field{
+
+display:flex;
+
+flex-direction:column;
+
+gap:8px;
+
+}
+
+.form-label{
+
+font-weight:600;
+
+}
+
+.form-control{
+
+padding:14px;
+
+border-radius:12px;
+
+border:none;
+
+background:
+rgba(10,15,30,.8);
+
+color:white;
+
+outline:none;
+
+}
+
+.form-control:focus{
+
+box-shadow:
+0 0 0 4px
+rgba(0,212,255,.2);
+
+}
+
+select option{
+
+background:#111;
+
+}
+
+.full-width{
+
+grid-column:1/-1;
+
+}
+
+.btn{
+
+padding:16px;
+
+border:none;
+
+border-radius:12px;
+
+font-weight:700;
+
+cursor:pointer;
+
+background:
+
+linear-gradient(
+90deg,
+#00d4ff,
+#7c3aed
+);
+
+color:white;
+
+}
+
+.result{
+
+margin-top:25px;
+
+padding:20px;
+
+border-radius:16px;
+
+background:
+rgba(255,255,255,.1);
+
+text-align:center;
+
+font-size:1.2rem;
+
+}
+
+@media(max-width:768px){
+
+form{
+
+grid-template-columns:1fr;
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="login">
+
+<div class="title">
+
+Game Completion Time Predictor
+
+</div>
+
+<div class="subtitle">
+
+Predict Completionist Hours
+
+</div>
+
+
+<form action="{{ url_for('predict_datapoint') }}"
+method="post">
+
+
+<!-- NUMERICAL -->
+
+{% set nums = [
+
+("year","Year"),
+
+("metacritic_score","Metacritic Score"),
+
+("user_score","User Score"),
+
+("critic_review_count","Critic Review Count"),
+
+("user_review_count","User Review Count"),
+
+("na_sales_million","NA Sales Million"),
+
+("eu_sales_million","EU Sales Million"),
+
+("jp_sales_million","JP Sales Million"),
+
+("other_sales_million","Other Sales Million"),
+
+("global_sales_million","Global Sales Million"),
+
+("estimated_revenue_million_usd","Estimated Revenue"),
+
+("how_long_to_beat_main_hrs","Main Story Hours"),
+
+("launch_price_usd","Launch Price USD")
+
+] %}
+
+
+{% for name,label in nums %}
+
+<div class="field">
+
+<label class="form-label">
+
+{{label}}
+
+</label>
+
+<input
+
+class="form-control"
+
+type="number"
+
+step="0.01"
+
+name="{{name}}"
+
+required>
+
+</div>
+
+{% endfor %}
+
+
+
+<!-- CATEGORICAL -->
+
+{% set cats=[
+
+("platform","Platform"),
+
+("platform_type","Platform Type"),
+
+("platform_maker","Platform Maker"),
+
+("platform_generation","Platform Generation"),
+
+("genre","Genre"),
+
+("publisher","Publisher"),
+
+("developer","Developer"),
+
+("publisher_region","Publisher Region"),
+
+("publisher_tier","Publisher Tier"),
+
+("esrb_rating","ESRB Rating"),
+
+("is_sequel","Is Sequel"),
+
+("online_multiplayer","Online Multiplayer"),
+
+("dlc_released","DLC Released"),
+
+("microtransactions","Microtransactions"),
+
+("loot_boxes","Loot Boxes"),
+
+("game_pass_available","Game Pass"),
+
+("vr_support","VR Support"),
+
+("goty_nominated","GOTY Nominated"),
+
+("goty_won","GOTY Won")
+
+] %}
+
+
+
+{% for name,label in cats %}
+
+<div class="field">
+
+<label class="form-label">
+
+{{label}}
+
+</label>
+
+<input
+
+class="form-control"
+
+name="{{name}}"
+
+required>
+
+</div>
+
+{% endfor %}
+
+
+<div class="full-width">
+
+<input
+
+class="btn"
+
+type="submit"
+
+value="Predict Completion Time">
+
+</div>
+
+</form>
+
+
+
+{% if results %}
+
+<div class="result">
+
+Predicted Completionist Hours:
+
+<b>
+
+{{results}}
+
+Hours
+
+</b>
+
+</div>
+
+{% endif %}
+
+
+</div>
+
+</body>
+
+</html>
+
