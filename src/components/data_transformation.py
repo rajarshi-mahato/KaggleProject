@@ -16,7 +16,7 @@ from src.utils import save_object
 
 @dataclass
 class DataTransformationConfig:
-    preprocessor_obj_file_path=os.path.join('artifacts',"proprocessor.pkl")
+    preprocessor_obj_file_path=os.path.join('artifacts',"preprocessor.pkl")
 
 class DataTransformation:
     def __init__(self):
@@ -28,14 +28,44 @@ class DataTransformation:
         
         '''
         try:
-            numerical_columns = ["writing_score", "reading_score"]
-            categorical_columns = [
-                "gender",
-                "race_ethnicity",
-                "parental_level_of_education",
-                "lunch",
-                "test_preparation_course",
+            numerical_columns = [
+                "year",
+                "metacritic_score",
+                "user_score",
+                "critic_review_count",
+                "user_review_count",
+                "na_sales_million",
+                "eu_sales_million",
+                "jp_sales_million",
+                "other_sales_million",
+                "global_sales_million",
+                "estimated_revenue_million_usd",
+                "how_long_to_beat_main_hrs",
+                "launch_price_usd"
             ]
+
+            categorical_columns = [
+                "platform",
+                "platform_type",
+                "platform_maker",
+                "platform_generation",
+                "genre",
+                "publisher",
+                "developer",
+                "publisher_region",
+                "publisher_tier",
+                "esrb_rating",
+                "is_sequel",
+                "online_multiplayer",
+                "dlc_released",
+                "microtransactions",
+                "loot_boxes",
+                "game_pass_available",
+                "vr_support",
+                "goty_nominated",
+                "goty_won"
+            ]
+             
 
             num_pipeline= Pipeline(
                 steps=[
@@ -49,7 +79,7 @@ class DataTransformation:
 
                 steps=[
                 ("imputer",SimpleImputer(strategy="most_frequent")),
-                ("one_hot_encoder",OneHotEncoder()),
+                ("one_hot_encoder",OneHotEncoder(handle_unknown="ignore")),
                 ("scaler",StandardScaler(with_mean=False))
                 ]
 
@@ -85,13 +115,12 @@ class DataTransformation:
 
             preprocessing_obj=self.get_data_transformer_object()
 
-            target_column_name="math_score"
-            numerical_columns = ["writing_score", "reading_score"]
+            target_column_name="how_long_to_beat_completionist_hrs"
 
-            input_feature_train_df=train_df.drop(columns=[target_column_name],axis=1)
+            input_feature_train_df = train_df.drop(columns=[target_column_name])
             target_feature_train_df=train_df[target_column_name]
 
-            input_feature_test_df=test_df.drop(columns=[target_column_name],axis=1)
+            input_feature_test_df = test_df.drop(columns=[target_column_name])
             target_feature_test_df=test_df[target_column_name]
 
             logging.info(
@@ -102,9 +131,14 @@ class DataTransformation:
             input_feature_test_arr=preprocessing_obj.transform(input_feature_test_df)
 
             train_arr = np.c_[
-                input_feature_train_arr, np.array(target_feature_train_df)
-            ]
-            test_arr = np.c_[input_feature_test_arr, np.array(target_feature_test_df)]
+                    input_feature_train_arr.toarray(),
+                    np.array(target_feature_train_df)
+                ]
+
+            test_arr = np.c_[
+                  input_feature_test_arr.toarray(),
+                 np.array(target_feature_test_df)
+                 ]
 
             logging.info(f"Saved preprocessing object.")
 
